@@ -25,7 +25,7 @@ public class DistanceController {
     }
 
     @GetMapping("/routes")
-    public List<RouteTO> getRoutes(@RequestParam String from, @RequestParam String to) {
-        return null;
+    public List<RouteTO> getRoutes(@RequestParam("from") String from, @RequestParam("to") String to) {
+        return cityDistanceService.findAllRoutes(from, to);
     }
 }
