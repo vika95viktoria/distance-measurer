@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/distance-measurer.iml" filepath="$PROJECT_DIR$/.idea/modules/distance-measurer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/distance-measurer_main.iml" filepath="$PROJECT_DIR$/.idea/modules/distance-measurer_main.iml" group="distance-measurer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/distance-measurer_test.iml" filepath="$PROJECT_DIR$/.idea/modules/distance-measurer_test.iml" group="distance-measurer" />
+    </modules>
+  </component>
+</project>
