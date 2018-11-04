@@ -1,6 +1,7 @@
 package com.itrex.distance.measurer.service.impl;
 
 import com.itrex.distance.measurer.converter.CityDistanceConverter;
+import com.itrex.distance.measurer.converter.RouteConverter;
 import com.itrex.distance.measurer.event.model.RouteAdditionEvent;
 import com.itrex.distance.measurer.exception.ResourceNotFoundException;
 import com.itrex.distance.measurer.exception.ValidationException;
@@ -27,16 +28,19 @@ public class CityDistanceServiceImpl implements CityDistanceService {
     private CityDistanceConverter cityDistanceConverter;
     private ApplicationEventPublisher eventPublisher;
     private RouteRepository routeRepository;
+    private RouteConverter routeConverter;
 
     @Autowired
     public CityDistanceServiceImpl(CityDistanceRepository cityDistanceRepository,
                                    CityDistanceConverter cityDistanceConverter,
                                    ApplicationEventPublisher eventPublisher,
-                                   RouteRepository routeRepository) {
+                                   RouteRepository routeRepository,
+                                   RouteConverter routeConverter) {
         this.cityDistanceRepository = cityDistanceRepository;
         this.cityDistanceConverter = cityDistanceConverter;
         this.eventPublisher = eventPublisher;
         this.routeRepository = routeRepository;
+        this.routeConverter = routeConverter;
     }
 
     @Override
@@ -68,15 +72,11 @@ public class CityDistanceServiceImpl implements CityDistanceService {
             throw new ResourceNotFoundException("No route available from " + cityFrom + " to " + cityTo);
         }
         return routes.stream()
-                .map(route -> {
-                    RouteTO routeTO = new RouteTO();
-                    List<String> cities = route.getPath();
-                    if(!cities.get(0).equals(cityFrom)) {
-                        Collections.reverse(cities);
+                .map(routeConverter::convertFrom)
+                .peek(routeTO -> {
+                    if(!routeTO.getCities().get(0).equals(cityFrom)) {
+                        Collections.reverse(routeTO.getCities());
                     }
-                    routeTO.setCities(cities);
-                    routeTO.setTotalDistance(route.getTotalDistance());
-                    return routeTO;
                 })
                 .collect(Collectors.toList());
     }
