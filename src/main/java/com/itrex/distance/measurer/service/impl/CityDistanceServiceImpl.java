@@ -67,6 +67,9 @@ public class CityDistanceServiceImpl implements CityDistanceService {
 
     @Override
     public List<RouteTO> findAllRoutes(String cityFrom, String cityTo) {
+        if(cityFrom.equals(cityTo)) {
+            throw new ValidationException("City from can't be equal to city to");
+        }
         List<Route> routes = routeRepository.findAllRoutesBetweenCities(cityFrom, cityTo);
         if(routes.isEmpty()) {
             throw new ResourceNotFoundException("No route available from " + cityFrom + " to " + cityTo);
