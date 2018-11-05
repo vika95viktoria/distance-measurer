@@ -4,7 +4,6 @@ import com.itrex.distance.measurer.model.Route;
 import com.itrex.distance.measurer.model.dto.RouteTO;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 @Component

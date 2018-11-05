@@ -5,10 +5,12 @@ import com.itrex.distance.measurer.model.Route;
 import com.itrex.distance.measurer.persistence.CityDistanceRepository;
 import com.itrex.distance.measurer.persistence.RouteRepository;
 import com.itrex.distance.measurer.service.impl.RouteCalculationServiceImpl;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -17,19 +19,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RouteCalculationServiceImplTest {
-
-    @Mock
-    private CityDistanceRepository cityDistanceRepository;
-    @Mock
-    private RouteRepository routeRepository;
-    @InjectMocks
-    private RouteCalculationServiceImpl routeCalculationService;
 
     private static final Long CITY_DISTANCE_ID = 1L;
     private static final Long B_C_DISTANCE = 10L;
@@ -39,7 +32,12 @@ public class RouteCalculationServiceImplTest {
     private static final String CITY_B = "B";
     private static final String CITY_C = "C";
     private static final String CITY_D = "D";
-
+    @Mock
+    private CityDistanceRepository cityDistanceRepository;
+    @Mock
+    private RouteRepository routeRepository;
+    @InjectMocks
+    private RouteCalculationServiceImpl routeCalculationService;
     @Captor
     private ArgumentCaptor<Route> routeArgumentCaptor;
     @Captor
@@ -78,7 +76,7 @@ public class RouteCalculationServiceImplTest {
         assertEquals(cRoutes.get(0).getPath(), Arrays.asList(CITY_B, CITY_C, CITY_D));
 
         List<Route> combinedRoutes = bRouteArgumentCaptor.getAllValues().get(2);
-        assertEquals(combinedRoutes.size(),     1);
+        assertEquals(combinedRoutes.size(), 1);
         assertTrue(combinedRoutes.get(0).getTotalDistance() == D_C_DISTANCE + B_C_DISTANCE + A_B_DISTANCE);
         assertEquals(combinedRoutes.get(0).getCityFrom(), CITY_A);
         assertEquals(combinedRoutes.get(0).getCityTo(), CITY_D);

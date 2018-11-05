@@ -18,7 +18,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +32,9 @@ public class CityDistanceServiceImpl implements CityDistanceService {
     private ApplicationEventPublisher eventPublisher;
     private RouteRepository routeRepository;
     private RouteConverter routeConverter;
+
+    private static final String CITY_EQUALITY_ERROR = "City from can't be equal to city to";
+    private static final String NO_CONNECTION_ERROR = "No route available";
 
     @Autowired
     public CityDistanceServiceImpl(CityDistanceRepository cityDistanceRepository,
@@ -46,14 +52,14 @@ public class CityDistanceServiceImpl implements CityDistanceService {
     @Override
     @Transactional
     public CityDistanceTO addDistance(CityDistanceCreateTO cityDistanceCreateTO) {
-        if(cityDistanceCreateTO.getCityFrom().equals(cityDistanceCreateTO.getCityTo())) {
-            throw new ValidationException("City from can't be equal to city to");
+        if (cityDistanceCreateTO.getCityFrom().equals(cityDistanceCreateTO.getCityTo())) {
+            throw new ValidationException(CITY_EQUALITY_ERROR);
         }
         List<String> cities = Arrays.asList(cityDistanceCreateTO.getCityFrom(), cityDistanceCreateTO.getCityTo());
         Collections.sort(cities);
         Optional<CityDistance> mayBeDistance = cityDistanceRepository.findByCities(cities.get(0), cities.get(1));
         CityDistance cityDistance;
-        if(mayBeDistance.isPresent()) {
+        if (mayBeDistance.isPresent()) {
             cityDistance = mayBeDistance.get();
             cityDistance.setDistance(cityDistanceCreateTO.getDistance());
 
@@ -67,17 +73,17 @@ public class CityDistanceServiceImpl implements CityDistanceService {
 
     @Override
     public List<RouteTO> findAllRoutes(String cityFrom, String cityTo) {
-        if(cityFrom.equals(cityTo)) {
-            throw new ValidationException("City from can't be equal to city to");
+        if (cityFrom.equals(cityTo)) {
+            throw new ValidationException(CITY_EQUALITY_ERROR);
         }
         List<Route> routes = routeRepository.findAllRoutesBetweenCities(cityFrom, cityTo);
-        if(routes.isEmpty()) {
-            throw new ResourceNotFoundException("No route available from " + cityFrom + " to " + cityTo);
+        if (routes.isEmpty()) {
+            throw new ResourceNotFoundException(NO_CONNECTION_ERROR + " from " + cityFrom + " to " + cityTo);
         }
         return routes.stream()
                 .map(routeConverter::convertFrom)
                 .peek(routeTO -> {
-                    if(!routeTO.getCities().get(0).equals(cityFrom)) {
+                    if (!routeTO.getCities().get(0).equals(cityFrom)) {
                         Collections.reverse(routeTO.getCities());
                     }
                 })

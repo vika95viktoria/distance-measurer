@@ -114,14 +114,14 @@ public class CityDistanceServiceImplTest {
         Assert.assertEquals(allRoutes.get(0).getCities().get(allRoutes.get(0).getCities().size() - 1), CITY_A);
     }
 
-    private RouteTO createRouteTO(Route route){
+    private RouteTO createRouteTO(Route route) {
         RouteTO routeTO = new RouteTO();
         routeTO.setTotalDistance(route.getTotalDistance());
         routeTO.setCities(route.getPath());
         return routeTO;
     }
 
-    private Route createRoute(String from, String to){
+    private Route createRoute(String from, String to) {
         Route route = new Route();
         route.setCityFrom(from);
         route.setCityTo(to);

@@ -38,16 +38,18 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
                 .stream()
                 .filter(route -> !route.getPath().contains(newRoute.getCityTo()))
                 .collect(Collectors.toList());
-        routeRepository.saveAll(createNewRoutes(newRoute, newRoute.getCityFrom(), routesToFirst));
+        routeRepository.saveAll(createRoutesToPoint(newRoute, newRoute.getCityFrom(), routesToFirst));
+
         List<Route> routesToSecond = routeRepository.findAllRoutesToCity(newRoute.getCityTo()).stream()
                 .filter(route -> !route.getPath().contains(newRoute.getCityFrom()))
                 .collect(Collectors.toList());
-        routeRepository.saveAll(createNewRoutes(newRoute, newRoute.getCityTo(), routesToSecond));
-        routeRepository.saveAll(
-                calculateAllRoutes(newRoute, routesToFirst, routesToSecond, newRoute.getCityFrom(), newRoute.getCityTo()));
+        routeRepository.saveAll(createRoutesToPoint(newRoute, newRoute.getCityTo(), routesToSecond));
+
+        routeRepository.saveAll(calculateAllCombinedRoutes(newRoute, routesToFirst, routesToSecond,
+                newRoute.getCityFrom(), newRoute.getCityTo()));
     }
 
-    private List<Route> createNewRoutes(CityDistance route, String city, List<Route> routes) {
+    private List<Route> createRoutesToPoint(CityDistance route, String city, List<Route> routes) {
         String newCity = route.getCityFrom().equals(city) ? route.getCityTo() : route.getCityFrom();
         return routes.stream()
                 .map(oldRoute -> {
@@ -67,15 +69,15 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
                 .collect(Collectors.toList());
     }
 
-    private List<Route> calculateAllRoutes(CityDistance connectingRoute, List<Route> routesToFirst,
-                                           List<Route> routesToSecond, String cityFrom, String cityTo) {
+    private List<Route> calculateAllCombinedRoutes(CityDistance connectingRoute, List<Route> routesToFirst,
+                                                   List<Route> routesToSecond, String cityFrom, String cityTo) {
         List<Route> combinedRoutes = new ArrayList<>();
-        for(Route routeA : routesToFirst) {
-            for(Route routeB: routesToSecond) {
-                if(!cityFrom.equals(routeA.getPath().get(routeA.getPath().size() - 1))) {
+        for (Route routeA : routesToFirst) {
+            for (Route routeB : routesToSecond) {
+                if (!cityFrom.equals(routeA.getPath().get(routeA.getPath().size() - 1))) {
                     Collections.reverse(routeA.getPath());
                 }
-                if(!cityTo.equals(routeB.getPath().get(0))) {
+                if (!cityTo.equals(routeB.getPath().get(0))) {
                     Collections.reverse(routeB.getPath());
                 }
                 List<String> cities = new ArrayList<>(routeA.getPath());
@@ -86,7 +88,7 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                         .entrySet().stream()
                         .anyMatch(entry -> entry.getValue() > 1);
-                if(!hasLoops) {
+                if (!hasLoops) {
                     combinedRoutes.add(createRoute(cities, endsOfPath,
                             routeA.getTotalDistance() + routeB.getTotalDistance() + connectingRoute.getDistance()));
                 }
