@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,6 +45,26 @@ public class RouteCalculationServiceImpl implements RouteCalculationService {
 
         routeRepository.saveAll(calculateAllCombinedRoutes(newRoute, routesToFirst, routesToSecond,
                 newRoute.getCityFrom(), newRoute.getCityTo()));
+    }
+
+    @Override
+    public void recalculateWithNewDistance(Long routeId, Long difference) {
+        CityDistance updatedRoute = cityDistanceRepository.getOne(routeId);
+        Set<Long> routeIds = routeRepository
+                .findIdsOfRoutesContainBothCities(updatedRoute.getCityFrom(), updatedRoute.getCityTo()).stream()
+                .map(BigInteger::longValue)
+                .collect(Collectors.toSet());
+        Set<Route> routesToUpdate = routeRepository.findAllById(routeIds).stream()
+                .filter(route -> containsSubRoute(route, updatedRoute))
+                .peek(route -> route.setTotalDistance(route.getTotalDistance() + difference))
+                .collect(Collectors.toSet());
+        routeRepository.saveAll(routesToUpdate);
+    }
+
+    private boolean containsSubRoute(Route route, CityDistance subRoute) {
+        int indexOfCityFrom = route.getPath().indexOf(subRoute.getCityFrom());
+        int indexOfCityTo = route.getPath().indexOf(subRoute.getCityTo());
+        return Math.abs(indexOfCityFrom - indexOfCityTo) == 1;
     }
 
     private List<Route> createRoutesToPoint(CityDistance route, String city, List<Route> routes) {

@@ -3,6 +3,7 @@ package com.itrex.distance.measurer.service.impl;
 import com.itrex.distance.measurer.converter.CityDistanceConverter;
 import com.itrex.distance.measurer.converter.RouteConverter;
 import com.itrex.distance.measurer.event.model.RouteAdditionEvent;
+import com.itrex.distance.measurer.event.model.RouteUpdateEvent;
 import com.itrex.distance.measurer.exception.ResourceNotFoundException;
 import com.itrex.distance.measurer.exception.ValidationException;
 import com.itrex.distance.measurer.model.CityDistance;
@@ -61,13 +62,17 @@ public class CityDistanceServiceImpl implements CityDistanceService {
         CityDistance cityDistance;
         if (mayBeDistance.isPresent()) {
             cityDistance = mayBeDistance.get();
-            cityDistance.setDistance(cityDistanceCreateTO.getDistance());
-
+            if(!cityDistanceCreateTO.getDistance().equals(cityDistance.getDistance())) {
+                Long difference = cityDistanceCreateTO.getDistance() - cityDistance.getDistance();
+                cityDistance.setDistance(cityDistanceCreateTO.getDistance());
+                cityDistanceRepository.save(cityDistance);
+                eventPublisher.publishEvent(new RouteUpdateEvent(cityDistance.getId(), difference));
+            }
         } else {
             cityDistance = cityDistanceConverter.convertFrom(cityDistanceCreateTO);
+            cityDistanceRepository.save(cityDistance);
+            eventPublisher.publishEvent(new RouteAdditionEvent(cityDistance.getId()));
         }
-        cityDistanceRepository.save(cityDistance);
-        eventPublisher.publishEvent(new RouteAdditionEvent(cityDistance.getId()));
         return cityDistanceConverter.convertFrom(cityDistance);
     }
 

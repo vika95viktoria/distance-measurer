@@ -7,6 +7,7 @@ import com.itrex.distance.measurer.service.CityDistanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,7 @@ public class DistanceController {
     }
 
     @PostMapping("/route")
-    public CityDistanceTO addDistance(@RequestBody CityDistanceCreateTO cityDistanceCreateTO) {
+    public CityDistanceTO addDistance(@RequestBody @Valid CityDistanceCreateTO cityDistanceCreateTO) {
         return cityDistanceService.addDistance(cityDistanceCreateTO);
     }
 
