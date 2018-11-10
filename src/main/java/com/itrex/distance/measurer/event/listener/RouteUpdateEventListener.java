@@ -1,6 +1,5 @@
 package com.itrex.distance.measurer.event.listener;
 
-import com.itrex.distance.measurer.event.model.RouteAdditionEvent;
 import com.itrex.distance.measurer.event.model.RouteUpdateEvent;
 import com.itrex.distance.measurer.service.RouteCalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
